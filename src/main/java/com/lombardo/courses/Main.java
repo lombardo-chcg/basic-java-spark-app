@@ -1,5 +1,6 @@
 package com.lombardo.courses;
 
+import com.lombardo.courses.Model.CourseIdea;
 import com.lombardo.courses.Model.CourseIdeaDAO;
 import com.lombardo.courses.Model.SimpleCourseIdeaDAO;
 import spark.ModelAndView;
@@ -10,9 +11,11 @@ import java.util.Map;
 
 import static spark.Spark.get;
 import static spark.Spark.post;
+import static spark.Spark.staticFileLocation;
 
 public class Main {
     public static void main(String[] args) {
+        staticFileLocation("/public");
 
         CourseIdeaDAO dao = new SimpleCourseIdeaDAO();
 
@@ -29,5 +32,20 @@ public class Main {
             model.put("username", username);
             return new ModelAndView(model, "sign-in.hbs");
         }, new HandlebarsTemplateEngine());
+
+        get("/ideas", (req, res) -> {
+            Map<String, Object> model = new HashMap<>();
+            model.put("ideas", dao.findAll());
+            return new ModelAndView(model, "ideas.hbs");
+        }, new HandlebarsTemplateEngine());
+
+        post("/ideas", (req, res) -> {
+            String title = req.queryParams("title");
+            // needs a currentUser helper! don't rely on cookies
+            CourseIdea courseIdea = new CourseIdea(title, req.queryParams("userName"));
+            dao.add(courseIdea);
+            res.redirect("/ideas");
+            return null;
+        });
     }
 }

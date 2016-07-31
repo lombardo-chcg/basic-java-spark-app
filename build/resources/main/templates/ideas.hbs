@@ -1,0 +1,17 @@
+{{#partial "content"}}
+    <h1>Current Idea</h1>
+
+    <ul>
+        {{#each ideas}}
+            <li>{{ title }}</li>
+        {{/each}}
+    </ul>
+
+    <form action="/ideas" method="post">
+        <input type="text" name="title" placeholder="what's your idea?" />
+        <button>Submit idea</button>
+    </form>
+
+{{/partial}}
+
+{{> layout.hbs}}
