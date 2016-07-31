@@ -20,4 +20,20 @@ public class SimpleCourseIdeaDAO implements CourseIdeaDAO {
     public List<CourseIdea> findAll() {
         return new ArrayList<>(ideas);
     }
+
+    public CourseIdea findBySlug(String slug) {
+//        return ideas.stream()
+//                .filter(idea -> idea.getSlug().equals(slug))
+//                .findFirst()
+//                .orElseThrow(NotFoundException::new);
+        CourseIdea currentIdea = null;
+        for (CourseIdea idea : findAll()) {
+            System.out.printf("slug %s %n", slug);
+            System.out.printf("idea.getslug %s %n", idea.getSlug());
+            if (idea.getSlug().equals(slug)) {
+                currentIdea = idea;
+            }
+        }
+        return currentIdea;
+    }
 }

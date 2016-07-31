@@ -56,10 +56,17 @@ public class Main {
             CourseIdea courseIdea = new CourseIdea(title, req.attribute("username"));
             dao.add(courseIdea);
 
-            for (CourseIdea idea : dao.findAll()) {
-                System.out.println(idea.toString());
-            }
+//            for (CourseIdea idea : dao.findAll()) {
+//                System.out.println(idea.toString());
+//            }
 
+            res.redirect("/ideas");
+            return null;
+        });
+
+        post("/ideas/:slug/vote", (req, res) -> {
+            CourseIdea idea = dao.findBySlug(req.params("slug"));
+            idea.addVoter(req.attribute("username"));
             res.redirect("/ideas");
             return null;
         });
