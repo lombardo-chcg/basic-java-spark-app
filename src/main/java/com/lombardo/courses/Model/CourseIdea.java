@@ -18,6 +18,14 @@ public class CourseIdea {
     }
 
     @Override
+    public String toString() {
+        return "CourseIdea{" +
+                "title='" + title + '\'' +
+                ", creator='" + creator + '\'' +
+                '}';
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
