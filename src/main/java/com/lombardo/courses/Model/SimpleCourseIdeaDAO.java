@@ -34,6 +34,11 @@ public class SimpleCourseIdeaDAO implements CourseIdeaDAO {
                 currentIdea = idea;
             }
         }
+
+        if (currentIdea == null) {
+            throw new NotFoundException();
+        }
+
         return currentIdea;
     }
 }
