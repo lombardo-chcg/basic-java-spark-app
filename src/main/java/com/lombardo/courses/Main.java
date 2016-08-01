@@ -16,7 +16,6 @@ import java.util.Map;
 import static spark.Spark.*;
 
 public class Main {
-    private static final String FLASH_MESSAGE_KEY = "flash_message";
 
     public static void main(String[] args) {
         staticFileLocation("/public");
@@ -31,17 +30,14 @@ public class Main {
 
         before("/ideas", (req, res) -> {
             if (req.cookie("username") == null) {
-                setFlashMessage(req, "Please log in!");
+                SessionHelper.setFlashMessage(req, "Please log in!");
                 res.redirect("/");
                 halt();
             }
         });
 
         get("/", (req, res) -> {
-            Map<String, String> model = new HashMap<>();
-            model.put("username", req.attribute("username"));
-            model.put("flashMessage", captureFlashMessage(req));
-            return new ModelAndView(model, "index.hbs");
+            return new ModelAndView(SessionHelper.flashMessageHelper(req), "index.hbs");
         }, new HandlebarsTemplateEngine());
 
         post("/sign-in", (req, res) -> {
@@ -56,7 +52,7 @@ public class Main {
         get("/ideas", (req, res) -> {
             Map<String, Object> model = new HashMap<>();
             model.put("ideas", dao.findAll());
-            model.put("flashMessage", captureFlashMessage(req));
+            model.put("flashMessage", SessionHelper.captureFlashMessage(req));
             return new ModelAndView(model, "ideas.hbs");
         }, new HandlebarsTemplateEngine());
 
@@ -72,10 +68,6 @@ public class Main {
             CourseIdea courseIdea = new CourseIdea(title, req.attribute("username"));
             dao.add(courseIdea);
 
-//            for (CourseIdea idea : dao.findAll()) {
-//                System.out.println(idea.toString());
-//            }
-
             res.redirect("/ideas");
             return null;
         });
@@ -84,9 +76,9 @@ public class Main {
             CourseIdea idea = dao.findBySlug(req.params("slug"));
             boolean added = idea.addVoter(req.attribute("username"));
             if (added) {
-                setFlashMessage(req, "Thanks for your vote!");
+                SessionHelper.setFlashMessage(req, "Thanks for your vote!");
             } else {
-                setFlashMessage(req, "You are only allowed one vote per course.");
+                SessionHelper.setFlashMessage(req, "You are only allowed one vote per course.");
             }
             res.redirect("/ideas");
             return null;
@@ -98,28 +90,6 @@ public class Main {
             String html = engine.render(new ModelAndView(null, "notfound.hbs"));
             res.body(html);
         });
-    }
-
-    private static void setFlashMessage(Request req, String message) {
-        req.session().attribute(FLASH_MESSAGE_KEY, message);
-    }
-
-    private static String getFlashMessage(Request req) {
-        if (req.session(false) == null ) {
-            return null;
-        }
-        if (!req.session().attributes().contains(FLASH_MESSAGE_KEY)) {
-            return null;
-        }
-        return (String) req.session().attribute(FLASH_MESSAGE_KEY);
-    }
-
-    private static String captureFlashMessage(Request req) {
-        String message = getFlashMessage(req);
-        if (message != null) {
-            req.session().removeAttribute(FLASH_MESSAGE_KEY);
-        }
-        return message;
     }
 
 }
